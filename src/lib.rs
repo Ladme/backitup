@@ -12,11 +12,10 @@
 //!
 //! ## Usage
 //!
-//! Add the following dependency to your `Cargo.toml` file:
+//! Run
 //!
-//! ```toml
-//! [dependencies]
-//! backitup = "0.1.0"
+//! ```bash
+//! $ cargo add backitup
 //! ```
 //!
 //! Import the crate in your Rust code:
