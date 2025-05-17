@@ -109,6 +109,14 @@ pub fn backup(path: impl AsRef<Path>) -> Result<PathBuf, std::io::Error> {
         return Err(Error::new(ErrorKind::NotFound, "Path does not exist."));
     }
 
+    // cannot backup the current working directory
+    if path.as_ref().canonicalize()? == std::env::current_dir()?.canonicalize()? {
+        return Err(Error::new(
+            ErrorKind::PermissionDenied,
+            "Cannot backup the current working directory.",
+        ));
+    }
+
     // get the parent directory of the path
     let parent = match path.as_ref().parent() {
         Some(x) => match x.to_str() {
@@ -365,5 +373,27 @@ mod tests {
             Ok(_) => panic!("Backup should have failed, but it was successful."),
             Err(e) => assert_eq!(e.to_string(), "Path ends in '..'."),
         };
+    }
+
+    #[test]
+    fn current_working_directory1() {
+        match backup(".") {
+            Ok(_) => panic!("Backup should have failed, but it was successful."),
+            Err(e) => assert_eq!(
+                e.to_string(),
+                "Cannot backup the current working directory."
+            ),
+        }
+    }
+
+    #[test]
+    fn current_working_directory2() {
+        match backup("../backitup/../backitup") {
+            Ok(_) => panic!("Backup should have failed, but it was successful."),
+            Err(e) => assert_eq!(
+                e.to_string(),
+                "Cannot backup the current working directory."
+            ),
+        }
     }
 }
